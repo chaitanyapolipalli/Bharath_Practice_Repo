@@ -1,0 +1,236 @@
+1.
+
+export SPARK_MAJOR_VERSION=2
+spark-shell
+
+val hr_data = spark.read.format("csv").option("header", "true").option("inferSchema", "true").load("/user/chaitanyapolipalli/bharath/HR_Analysis_Dataset.csv")
+
+hr_data.createOrReplaceTempView("hrData")
+
+spark.sql("select sales, avg(satisfaction_level) as Avg from hrData group by sales order by Avg").show
+
++-----------+------------------+
+|      sales|               Avg|
++-----------+------------------+
+| accounting|0.5821512385919166|
+|         hr|0.5988092016238159|
+|  technical|0.6078970588235295|
+|      sales| 0.614446859903383|
+|         IT|0.6181418092909551|
+|    support|0.6182996859578297|
+|  marketing|0.6186013986013983|
+|product_mng|0.6196341463414636|
+|      RandD|0.6198221092757306|
+| management|0.6213492063492058|
++-----------+------------------+
+
+#####################################################################################################################
+
+2.
+
+spark.sql("select sales, count(left) as Total_Left from hrData where left = 0 group by sales order by Total_Left ").show
++-----------+----------+
+|      sales|Total_Left|
++-----------+----------+
+|         hr|       524|
+| management|       539|
+| accounting|       563|
+|  marketing|       655|
+|      RandD|       666|
+|product_mng|       704|
+|         IT|       954|
+|    support|      1674|
+|  technical|      2023|
+|      sales|      3126|
++-----------+----------+
+#####################################################################################################################
+
+3.
+
+spark.sql("select sales, avg(average_montly_hours) as Avg_Hours from hrData group by sales order by Avg_Hours").show
+
++-----------+------------------+
+|      sales|         Avg_Hours|
++-----------+------------------+
+|         hr|198.68470906630583|
+|  marketing| 199.3857808857809|
+|product_mng|199.96563192904657|
+|    support|200.75818752803949|
+|      RandD| 200.8005082592122|
+|      sales|200.91135265700484|
+| accounting|201.16297262059973|
+| management|201.24920634920636|
+|         IT| 202.2159739201304|
+|  technical|202.49742647058824|
+
+#####################################################################################################################
+
+4.
+
+spark.sql("select sales, count(number_project) as Total_Projects from hrData group by sales order by Total_Projects ").show
++-----------+--------------+
+|      sales|Total_Projects|
++-----------+--------------+
+| management|           630|
+|         hr|           739|
+| accounting|           767|
+|      RandD|           787|
+|  marketing|           858|
+|product_mng|           902|
+|         IT|          1227|
+|    support|          2229|
+|  technical|          2720|
+|      sales|          4140|
++-----------+--------------+
+#####################################################################################################################
+
+6.
+
+spark.sql("select sales, count(left) as Total_Left from hrData where promotion_last_5years = 1 and left = 0 group by sales order by Total_Left ").show
++----------+----------+
+|     sales|Total_Left|
++----------+----------+
+|accounting|        14|
+|        hr|        15|
+|   support|        17|
+| technical|        25|
+|     RandD|        27|
+| marketing|        43|
+|management|        66|
+|     sales|        93|
++----------+----------+
+
+#####################################################################################################################
+
+7.
+
+spark.sql("select sales, avg(satisfaction_level) as Avg_Satisfaction, avg(average_montly_hours) as Avg_Working_Hours, count(left) as Total_Left from hrData where left = 0 group by sales order by Avg_Satisfaction,Avg_Working_Hours,Total_Le
+ft ").show
++-----------+------------------+------------------+----------+
+|      sales|  Avg_Satisfaction| Avg_Working_Hours|Total_Left|
++-----------+------------------+------------------+----------+
+| accounting|0.6472113676731801| 199.0373001776199|       563|
+|      RandD|0.6537987987987991|198.95195195195194|       666|
+| management|0.6548608534322814|200.23376623376623|       539|
+|product_mng|0.6584659090909087|        197.765625|       704|
+|         hr|0.6666793893129773|            199.25|       524|
+|  technical|0.6683193277310949|198.47108255066732|      2023|
+|      sales|0.6685476647472844|199.57165706973768|      3126|
+|  marketing|0.6698778625954191| 198.8885496183206|       655|
+|    support|0.6737992831541231| 199.1409796893668|      1674|
+|         IT|0.6771698113207558|198.88679245283018|       954|
++-----------+------------------+------------------+----------+
+
+
+#####################################################################################################################
+
+8.
+spark.sql("select sales, salary, sum(satisfaction_level)/count(satisfaction_level) as Mean_Satisfaction, avg(average_montly_hours) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and left = 0 group by sale
+s, salary order by Mean_Satisfaction,Avg_Working_Hours,Total_Left ").show
++-----------+------+------------------+------------------+----------+
+|      sales|salary| Mean_Satisfaction| Avg_Working_Hours|Total_Left|
++-----------+------+------------------+------------------+----------+
+| accounting|   low|0.6432818532818535|198.85714285714286|       259|
+|      RandD|   low|0.6512944983818767|197.47249190938513|       309|
+|         hr|   low|0.6585596707818927|201.79423868312756|       243|
+|product_mng|   low|0.6619075144508663|197.60693641618496|       346|
+|  technical|   low|0.6688329979879283|198.67203219315894|       994|
+|      sales|   low|0.6693651925820254| 198.5820256776034|      1402|
+|    support|   low|0.6734346103038311|196.51519154557462|       757|
+|  marketing|   low|0.6758333333333335|203.45652173913044|       276|
+| management|   low|0.6804958677685952| 202.1900826446281|       121|
+|         IT|   low|0.6816475972540049|197.90389016018307|       437|
++-----------+------+------------------+------------------+----------+
+
+#####################################################################################################################
+
+9.
+
+ spark.sql("select sales,promotion_last_5years, sum(satisfaction_level)/count(satisfaction_level) as Mean_Satisfaction, avg(average_montly_hours) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and promotio
+n_last_5years = 1 and left = 0 group by sales, promotion_last_5years order by Mean_Satisfaction,Avg_Working_Hours,Total_Left").show
++----------+---------------------+------------------+------------------+----------+
+|     sales|promotion_last_5years| Mean_Satisfaction| Avg_Working_Hours|Total_Left|
++----------+---------------------+------------------+------------------+----------+
+|accounting|                    1|              0.52|             261.0|         2|
+|     RandD|                    1|0.5499999999999999|169.33333333333334|         3|
+|management|                    1|              0.58|             236.5|         4|
+| technical|                    1| 0.658888888888889|184.77777777777777|         9|
+|     sales|                    1|0.6799999999999999|184.28571428571428|        14|
+|   support|                    1|0.6985714285714285|168.85714285714286|         7|
+| marketing|                    1|0.7509090909090909| 211.1818181818182|        11|
+|        hr|                    1|              0.78|             175.0|         2|
++----------+---------------------+------------------+------------------+----------+
+
+#####################################################################################################################
+10.
+
+spark.sql("select sales, avg(satisfaction_level) as Avg_Satisfaction_Level, avg(last_evaluation) as Avg_Last_Evaluation, count(left) as Total_Left from hrData group by sales").show
++-----------+----------------------+-------------------+----------+
+|      sales|Avg_Satisfaction_Level|Avg_Last_Evaluation|Total_Left|
++-----------+----------------------+-------------------+----------+
+| management|    0.6213492063492058| 0.7240000000000004|       630|
+|product_mng|    0.6196341463414636| 0.7147560975609766|       902|
+|  marketing|    0.6186013986013983| 0.7158857808857806|       858|
+|      sales|     0.614446859903383| 0.7097173913043466|      4140|
+|         hr|    0.5988092016238159| 0.7088497970230044|       739|
+| accounting|    0.5821512385919166| 0.7177183833116036|       767|
+|    support|    0.6182996859578297| 0.7231090174966335|      2229|
+|         IT|    0.6181418092909551|  0.716829665851672|      1227|
+|  technical|    0.6078970588235295| 0.7210992647058838|      2720|
+|      RandD|    0.6198221092757306| 0.7121219822109279|       787|
++-----------+----------------------+-------------------+----------+
+
+
+#####################################################################################################################
+
+12.
+spark.sql("select sales, count(left)/(SELECT count(left) FROM hrData) * 100 as Total_Employees, count(left)/(SELECT count(left) FROM hrData) * 100 > 70 as Total_Left_More_Than_70 from hrData group by sales order by Total_Left_More_Than_70
+").show
++-----------+------------------+-----------------------+
+|      sales|   Total_Employees|Total_Left_More_Than_70|
++-----------+------------------+-----------------------+
+|         hr| 4.926995133008867|                  false|
+| management| 4.200280018667911|                  false|
+| accounting| 5.113674244949664|                  false|
+|product_mng|6.0137342489499295|                  false|
+|         IT| 8.180545369691313|                  false|
+|    support|14.860990732715514|                  false|
+|      sales|27.601840122674844|                  false|
+|  marketing|  5.72038135875725|                  false|
+|      RandD| 5.247016467764517|                  false|
+|  technical| 18.13454230282019|                  false|
++-----------+------------------+-----------------------+
+
+#####################################################################################################################
+
+13.
+ spark.sql("select distinct sales from hrData where number_project = (select MAX(number_project) from hrData) and average_montly_hours = (select MAX(average_montly_hours) from hrData) group by sales").show
++---------+
+|    sales|
++---------+
+|marketing|
+|    sales|
+|       hr|
+|  support|
++---------+
+#####################################################################################################################
+
+15.
+
+spark.sql("select sales, count(number_project)/(SELECT count(number_project) FROM hrData) * 100 as Total_Project_Per_Department_Share, count(number_project)/(SELECT count(number_project) FROM hrData) * 100 > 40 as Total_Projects_Greater_T
+han_40 from hrData group by sales order by Total_Project_Per_Department_Share").show
++-----------+----------------------------------+------------------------------+
+|      sales|Total_Project_Per_Department_Share|Total_Projects_Greater_Than_40|
++-----------+----------------------------------+------------------------------+
+| management|                 4.200280018667911|                         false|
+|         hr|                 4.926995133008867|                         false|
+| accounting|                 5.113674244949664|                         false|
+|      RandD|                 5.247016467764517|                         false|
+|  marketing|                  5.72038135875725|                         false|
+|product_mng|                6.0137342489499295|                         false|
+|         IT|                 8.180545369691313|                         false|
+|    support|                14.860990732715514|                         false|
+|  technical|                 18.13454230282019|                         false|
+|      sales|                27.601840122674844|                         false|
++-----------+----------------------------------+------------------------------+
+
