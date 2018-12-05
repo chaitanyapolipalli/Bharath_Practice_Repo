@@ -88,6 +88,47 @@ spark.sql("select sales, count(number_project) as Total_Projects from hrData gro
 +-----------+--------------+
 #####################################################################################################################
 
+5.
+spark.sql("select salary, sales , count(salary) as Total from hrData group by salary, sales order by sales,salary").show(1000)
+spark.sql("select salary, sales , count(salary) as Total from hrData group by salary, sales order by sales desc,salary").show(1000)
++------+-----------+-----+
+|salary|      sales|Total|
++------+-----------+-----+
+|  high|         IT|   83|
+|   low|         IT|  609|
+|medium|         IT|  535|
+|  high|      RandD|   51|
+|   low|      RandD|  364|
+|medium|      RandD|  372|
+|  high| accounting|   74|
+|   low| accounting|  358|
+|medium| accounting|  335|
+|  high|         hr|   45|
+|   low|         hr|  335|
+|medium|         hr|  359|
+|  high| management|  225|
+|   low| management|  180|
+|medium| management|  225|
+|  high|  marketing|   80|
+|   low|  marketing|  402|
+|medium|  marketing|  376|
+|  high|product_mng|   68|
+|   low|product_mng|  451|
+|medium|product_mng|  383|
+|  high|      sales|  269|
+|   low|      sales| 2099|
+|medium|      sales| 1772|
+|  high|    support|  141|
+|   low|    support| 1146|
+|medium|    support|  942|
+|  high|  technical|  201|
+|   low|  technical| 1372|
+|medium|  technical| 1147|
++------+-----------+-----+
+
+#####################################################################################################################
+
+
 6.
 
 spark.sql("select sales, count(left) as Total_Left from hrData where promotion_last_5years = 1 and left = 0 group by sales order by Total_Left ").show
@@ -169,23 +210,107 @@ spark.sql("select sales, salary, round(sum(satisfaction_level)/count(satisfactio
 #####################################################################################################################
 10.
 
-spark.sql("select sales, round(avg(satisfaction_level),2) as Avg_Satisfaction_Level, round(avg(last_evaluation),2) as Avg_Last_Evaluation, count(left) as Total_Left from hrData group by sales order by Avg_Satisfaction_Level").show
-spark.sql("select sales, round(avg(satisfaction_level),2) as Avg_Satisfaction_Level, round(avg(last_evaluation),2) as Avg_Last_Evaluation, count(left) as Total_Left from hrData group by sales order by Avg_Satisfaction_Level desc").show
-+-----------+----------------------+-------------------+----------+
-|      sales|Avg_Satisfaction_Level|Avg_Last_Evaluation|Total_Left|
-+-----------+----------------------+-------------------+----------+
-| management|    0.6213492063492058| 0.7240000000000004|       630|
-|product_mng|    0.6196341463414636| 0.7147560975609766|       902|
-|  marketing|    0.6186013986013983| 0.7158857808857806|       858|
-|      sales|     0.614446859903383| 0.7097173913043466|      4140|
-|         hr|    0.5988092016238159| 0.7088497970230044|       739|
-| accounting|    0.5821512385919166| 0.7177183833116036|       767|
-|    support|    0.6182996859578297| 0.7231090174966335|      2229|
-|         IT|    0.6181418092909551|  0.716829665851672|      1227|
-|  technical|    0.6078970588235295| 0.7210992647058838|      2720|
-|      RandD|    0.6198221092757306| 0.7121219822109279|       787|
-+-----------+----------------------+-------------------+----------+
+val count_total = spark.sql(s"""SELECT CAST(count(left) AS Int) FROM hrData""").first.get(0)
 
+spark.sql(s"""select salary, round(avg(satisfaction_level),2) as Avg_Satisfaction_Level, round(avg(last_evaluation),2) as Avg_Last_Evaluation, count(left) as Total_Left, round(count(left)/$count_total * 100,2) as Percentage from hrData where left = 0 group by salary order by Percentage""").show
+
+spark.sql(s"""select salary, round(avg(satisfaction_level),2) as Avg_Satisfaction_Level, round(avg(last_evaluation),2) as Avg_Last_Evaluation, count(left) as Total_Left, round(count(left)/$count_total * 100,2) as Percentage from hrData where left = 0 group by salary order by Percentage desc""").show
+
+
++------+----------------------+-------------------+----------+----------+
+|salary|Avg_Satisfaction_Level|Avg_Last_Evaluation|Total_Left|Percentage|
++------+----------------------+-------------------+----------+----------+
+|  high|                  0.65|               0.71|      1155|       7.7|
+|   low|                  0.67|               0.72|      5144|      34.3|
+|medium|                  0.67|               0.72|      5129|      34.2|
++------+----------------------+-------------------+----------+----------+
+
+
+#####################################################################################################################
+
+11.
+
+ spark.sql("select sales, time_spend_company , count(left) as Total_Left from hrData where left = 0 group by time_spend_company,sales order by time_spend_company,Total_left").show(1000)
+  spark.sql("select sales, time_spend_company , count(left) as Total_Left from hrData where left = 0 group by time_spend_company,sales order by time_spend_company desc,Total_left").show(1000)
++-----------+------------------+----------+
+|      sales|time_spend_company|Total_Left|
++-----------+------------------+----------+
+| management|                 2|       113|
+| accounting|                 2|       139|
+|         hr|                 2|       162|
+|  marketing|                 2|       171|
+|      RandD|                 2|       179|
+|product_mng|                 2|       201|
+|         IT|                 2|       264|
+|  technical|                 6|       105|
+|    support|                 2|       504|
+|  technical|                 2|       580|
+|      sales|                 2|       878|
+| management|                 3|       200|
+|         hr|                 3|       218|
+| accounting|                 3|       243|
+|  marketing|                 3|       276|
+|      RandD|                 3|       296|
+|product_mng|                 3|       298|
+|         IT|                 3|       408|
+|    support|                 3|       732|
+|  technical|                 3|       896|
+|      sales|                 3|      1290|
+| management|                 4|        59|
+|         hr|                 4|        71|
+| accounting|                 4|        99|
+|      RandD|                 4|       102|
+|  marketing|                 4|       103|
+|product_mng|                 4|       108|
+|         IT|                 4|       139|
+|    support|                 4|       241|
+|  technical|                 4|       303|
+|      sales|                 4|       442|
+| management|                 5|        27|
+|  marketing|                 5|        30|
+| accounting|                 5|        35|
+|         hr|                 5|        39|
+|product_mng|                 5|        39|
+|      RandD|                 5|        42|
+|         IT|                 5|        60|
+|    support|                 5|        98|
+|  technical|                 5|       107|
+|      sales|                 5|       163|
+| management|                 6|        18|
+|product_mng|                 6|        22|
+| accounting|                 6|        23|
+|         hr|                 6|        28|
+|  marketing|                 6|        33|
+|      RandD|                 6|        37|
+|         IT|                 6|        45|
+|    support|                 6|        61|
+|  technical|                 6|       105|
+|      sales|                 6|       137|
+|  technical|                 7|         2|
+|  marketing|                 7|        10|
+|         IT|                 7|        12|
+|product_mng|                 7|        18|
+| management|                 7|        36|
+|      sales|                 7|       110|
+|         hr|                 8|         6|
+|product_mng|                 8|         8|
+|         IT|                 8|        10|
+|      RandD|                 8|        10|
+|  technical|                 8|        10|
+|    support|                 8|        12|
+| accounting|                 8|        14|
+|  marketing|                 8|        20|
+| management|                 8|        24|
+|      sales|                 8|        48|
+|product_mng|                10|        10|
+| accounting|                10|        10|
+|  marketing|                10|        12|
+|         IT|                10|        16|
+|  technical|                10|        20|
+|    support|                10|        26|
+|      sales|                10|        58|
+| management|                10|        62|
++-----------+------------------+----------+
 
 #####################################################################################################################
 
@@ -224,6 +349,40 @@ spark.sql(s"""select distinct sales from hrData where number_project = $max_prjt
 |       hr|
 |  support|
 +---------+
+#####################################################################################################################
+
+14.
+spark.sql("select time_spend_company , count(salary) as Salary_Distribution, salary from hrData group by time_spend_company,salary order by time_spend_company,salary").show(100)
+spark.sql("select time_spend_company , count(salary) as Salary_Distribution, salary from hrData group by time_spend_company,salary order by time_spend_company desc,salary").show(100)
++------------------+-------------------+------+
+|time_spend_company|Salary_Distribution|salary|
++------------------+-------------------+------+
+|                 2|                303|  high|
+|                 2|               1527|   low|
+|                 2|               1414|medium|
+|                 3|                520|  high|
+|                 3|               3205|   low|
+|                 3|               2718|medium|
+|                 4|                173|  high|
+|                 4|               1300|   low|
+|                 4|               1084|medium|
+|                 5|                 66|  high|
+|                 5|                799|   low|
+|                 5|                608|medium|
+|                 6|                 55|  high|
+|                 6|                333|   low|
+|                 6|                330|medium|
+|                 7|                 38|  high|
+|                 7|                 36|   low|
+|                 7|                114|medium|
+|                 8|                 18|  high|
+|                 8|                 60|   low|
+|                 8|                 84|medium|
+|                10|                 64|  high|
+|                10|                 56|   low|
+|                10|                 94|medium|
++------------------+-------------------+------+
+
 #####################################################################################################################
 
 15.
