@@ -7,7 +7,8 @@ val hr_data = spark.read.format("csv").option("header", "true").option("inferSch
 
 hr_data.createOrReplaceTempView("hrData")
 
-spark.sql("select sales, avg(satisfaction_level) as Avg from hrData group by sales order by Avg").show
+spark.sql("select sales, round(avg(satisfaction_level),2) as Avg from hrData group by sales order by Avg").show
+spark.sql("select sales, round(avg(satisfaction_level),2) as Avg from hrData group by sales order by Avg desc").show
 
 +-----------+------------------+
 |      sales|               Avg|
@@ -29,6 +30,7 @@ spark.sql("select sales, avg(satisfaction_level) as Avg from hrData group by sal
 2.
 
 spark.sql("select sales, count(left) as Total_Left from hrData where left = 0 group by sales order by Total_Left ").show
+spark.sql("select sales, count(left) as Total_Left from hrData where left = 0 group by sales order by Total_Left desc").show
 +-----------+----------+
 |      sales|Total_Left|
 +-----------+----------+
@@ -47,7 +49,8 @@ spark.sql("select sales, count(left) as Total_Left from hrData where left = 0 gr
 
 3.
 
-spark.sql("select sales, avg(average_montly_hours) as Avg_Hours from hrData group by sales order by Avg_Hours").show
+spark.sql("select sales, round(avg(average_montly_hours),2) as Avg_Hours from hrData group by sales order by Avg_Hours").show
+spark.sql("select sales, round(avg(average_montly_hours),2) as Avg_Hours from hrData group by sales order by Avg_Hours desc").show
 
 +-----------+------------------+
 |      sales|         Avg_Hours|
@@ -68,6 +71,7 @@ spark.sql("select sales, avg(average_montly_hours) as Avg_Hours from hrData grou
 4.
 
 spark.sql("select sales, count(number_project) as Total_Projects from hrData group by sales order by Total_Projects ").show
+spark.sql("select sales, count(number_project) as Total_Projects from hrData group by sales order by Total_Projects desc").show
 +-----------+--------------+
 |      sales|Total_Projects|
 +-----------+--------------+
@@ -87,6 +91,7 @@ spark.sql("select sales, count(number_project) as Total_Projects from hrData gro
 6.
 
 spark.sql("select sales, count(left) as Total_Left from hrData where promotion_last_5years = 1 and left = 0 group by sales order by Total_Left ").show
+spark.sql("select sales, count(left) as Total_Left from hrData where promotion_last_5years = 1 and left = 0 group by sales order by Total_Left desc").show
 +----------+----------+
 |     sales|Total_Left|
 +----------+----------+
@@ -104,8 +109,8 @@ spark.sql("select sales, count(left) as Total_Left from hrData where promotion_l
 
 7.
 
-spark.sql("select sales, avg(satisfaction_level) as Avg_Satisfaction, avg(average_montly_hours) as Avg_Working_Hours, count(left) as Total_Left from hrData where left = 0 group by sales order by Avg_Satisfaction,Avg_Working_Hours,Total_Le
-ft ").show
+spark.sql("select sales, round(avg(satisfaction_level),2) as Avg_Satisfaction, round(avg(average_montly_hours),2) as Avg_Working_Hours, count(left) as Total_Left from hrData where left = 0 group by sales order by Avg_Satisfaction,Avg_Working_Hours,Total_Left ").show
+spark.sql("select sales, round(avg(satisfaction_level),2) as Avg_Satisfaction, round(avg(average_montly_hours),2) as Avg_Working_Hours, count(left) as Total_Left from hrData where left = 0 group by sales order by Avg_Satisfaction desc,Avg_Working_Hours,Total_Left").show
 +-----------+------------------+------------------+----------+
 |      sales|  Avg_Satisfaction| Avg_Working_Hours|Total_Left|
 +-----------+------------------+------------------+----------+
@@ -125,8 +130,8 @@ ft ").show
 #####################################################################################################################
 
 8.
-spark.sql("select sales, salary, sum(satisfaction_level)/count(satisfaction_level) as Mean_Satisfaction, avg(average_montly_hours) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and left = 0 group by sale
-s, salary order by Mean_Satisfaction,Avg_Working_Hours,Total_Left ").show
+spark.sql("select sales, salary, round(sum(satisfaction_level)/count(satisfaction_level),2) as Mean_Satisfaction, round(avg(average_montly_hours),2) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and left = 0 group by sales, salary order by Mean_Satisfaction,Avg_Working_Hours,Total_Left ").show
+spark.sql("select sales, salary, round(sum(satisfaction_level)/count(satisfaction_level),2) as Mean_Satisfaction, round(avg(average_montly_hours),2) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and left = 0 group by sales, salary order by Mean_Satisfaction desc,Avg_Working_Hours,Total_Left ").show
 +-----------+------+------------------+------------------+----------+
 |      sales|salary| Mean_Satisfaction| Avg_Working_Hours|Total_Left|
 +-----------+------+------------------+------------------+----------+
@@ -146,8 +151,8 @@ s, salary order by Mean_Satisfaction,Avg_Working_Hours,Total_Left ").show
 
 9.
 
- spark.sql("select sales,promotion_last_5years, sum(satisfaction_level)/count(satisfaction_level) as Mean_Satisfaction, avg(average_montly_hours) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and promotio
-n_last_5years = 1 and left = 0 group by sales, promotion_last_5years order by Mean_Satisfaction,Avg_Working_Hours,Total_Left").show
+ spark.sql("select sales,promotion_last_5years, round(sum(satisfaction_level)/count(satisfaction_level),2) as Mean_Satisfaction, round(avg(average_montly_hours),2) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and promotion_last_5years = 1 and left = 0 group by sales, promotion_last_5years order by Mean_Satisfaction,Avg_Working_Hours,Total_Left").show
+ spark.sql("select sales,promotion_last_5years, round(sum(satisfaction_level)/count(satisfaction_level),2) as Mean_Satisfaction, round(avg(average_montly_hours),2) as Avg_Working_Hours, count(left) as Total_Left from hrData where salary = 'low' and promotion_last_5years = 1 and left = 0 group by sales, promotion_last_5years order by Mean_Satisfaction desc,Avg_Working_Hours,Total_Left").show
 +----------+---------------------+------------------+------------------+----------+
 |     sales|promotion_last_5years| Mean_Satisfaction| Avg_Working_Hours|Total_Left|
 +----------+---------------------+------------------+------------------+----------+
@@ -164,7 +169,8 @@ n_last_5years = 1 and left = 0 group by sales, promotion_last_5years order by Me
 #####################################################################################################################
 10.
 
-spark.sql("select sales, avg(satisfaction_level) as Avg_Satisfaction_Level, avg(last_evaluation) as Avg_Last_Evaluation, count(left) as Total_Left from hrData group by sales").show
+spark.sql("select sales, round(avg(satisfaction_level),2) as Avg_Satisfaction_Level, round(avg(last_evaluation),2) as Avg_Last_Evaluation, count(left) as Total_Left from hrData group by sales order by Avg_Satisfaction_Level").show
+spark.sql("select sales, round(avg(satisfaction_level),2) as Avg_Satisfaction_Level, round(avg(last_evaluation),2) as Avg_Last_Evaluation, count(left) as Total_Left from hrData group by sales order by Avg_Satisfaction_Level desc").show
 +-----------+----------------------+-------------------+----------+
 |      sales|Avg_Satisfaction_Level|Avg_Last_Evaluation|Total_Left|
 +-----------+----------------------+-------------------+----------+
@@ -184,8 +190,11 @@ spark.sql("select sales, avg(satisfaction_level) as Avg_Satisfaction_Level, avg(
 #####################################################################################################################
 
 12.
-spark.sql("select sales, count(left)/(SELECT count(left) FROM hrData) * 100 as Total_Employees, count(left)/(SELECT count(left) FROM hrData) * 100 > 70 as Total_Left_More_Than_70 from hrData group by sales order by Total_Left_More_Than_70
-").show
+
+val count_left = spark.sql(s"""SELECT CAST(count(left) AS Int) FROM hrData""").first.get(0)
+
+spark.sql(s"""select sales, round((count(left)/$count_left * 100),2)as Total_Employees, count(left)/$count_left * 100 > 70 as Total_Left_More_Than_70 from hrData group by sales order by Total_Employees""").show
+spark.sql(s"""select sales, round((count(left)/$count_left * 100),2)as Total_Employees, count(left)/$count_left * 100 > 70 as Total_Left_More_Than_70 from hrData group by sales order by Total_Employees desc""").show
 +-----------+------------------+-----------------------+
 |      sales|   Total_Employees|Total_Left_More_Than_70|
 +-----------+------------------+-----------------------+
@@ -204,7 +213,9 @@ spark.sql("select sales, count(left)/(SELECT count(left) FROM hrData) * 100 as T
 #####################################################################################################################
 
 13.
- spark.sql("select distinct sales from hrData where number_project = (select MAX(number_project) from hrData) and average_montly_hours = (select MAX(average_montly_hours) from hrData) group by sales").show
+val max_prjts = spark.sql(s"""SELECT CAST(MAX(number_project) AS Int) FROM hrData""").first.get(0)
+val hours = spark.sql(s"""select CAST(MAX(average_montly_hours) AS Double) from hrData""").first.get(0)
+spark.sql(s"""select distinct sales from hrData where number_project = $max_prjts and average_montly_hours = $hours group by sales""").show
 +---------+
 |    sales|
 +---------+
@@ -217,8 +228,10 @@ spark.sql("select sales, count(left)/(SELECT count(left) FROM hrData) * 100 as T
 
 15.
 
-spark.sql("select sales, count(number_project)/(SELECT count(number_project) FROM hrData) * 100 as Total_Project_Per_Department_Share, count(number_project)/(SELECT count(number_project) FROM hrData) * 100 > 40 as Total_Projects_Greater_T
-han_40 from hrData group by sales order by Total_Project_Per_Department_Share").show
+val count_prjts = spark.sql(s"""SELECT CAST(count(number_project) AS Int) FROM hrData""").first.get(0)
+
+spark.sql(s"""select sales, round((count(number_project)/$count_prjts * 100),2) as Total_Project_Per_Department_Share, count(number_project)/($count_prjts) * 100 > 40 as Total_Projects_Greater_Than_40 from hrData group by sales order by Total_Project_Per_Department_Share""").show
+spark.sql(s"""select sales, round((count(number_project)/$count_prjts * 100),2) as Total_Project_Per_Department_Share, count(number_project)/$count_prjts * 100 > 40 as Total_Projects_Greater_Than_40 from hrData group by sales order by Total_Project_Per_Department_Share desc""").show
 +-----------+----------------------------------+------------------------------+
 |      sales|Total_Project_Per_Department_Share|Total_Projects_Greater_Than_40|
 +-----------+----------------------------------+------------------------------+
